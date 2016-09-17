@@ -1,6 +1,10 @@
-    var keyword = "cats";
+    var tag = "cats";
+    var key = "ae31860245a55e8282262c2c7eaf6a17";
+    var token = "72157670689935274-f2af444edc38d8cd";
 
-    var url = "https://api.flickr.com/services/feeds/photos_public.gne?tags="+ keyword +"&format=json&tagmode=any";
+    var url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key="+
+        key+"&tags="+tag+"&format=json&nojsoncallback=1&auth_token="+
+        token+"&api_sig=05d1dbe4c4810c7b33450685edaf3c01";
 
     var images = document.getElementsByTagName('img');
 
@@ -9,8 +13,9 @@
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4)
         {
-            var data = this.responseText.split("jsonFlickrFeed(").pop();
-            data = JSON.parse(data.substring(0, data.length-1));
+
+            var data = JSON.parse(this.responseText);
+            var photos = data.photos.photo;
 
             // var rnd = Math.floor(Math.random() * data.items.length);
             //
@@ -18,8 +23,24 @@
             // console.log("total "+ data.items.length);
             // images[0].src = image_src;
 
-            for(var i = 0; i < data.items.length && i < images.length; i++){
-                images[i].src = data.items[i]['media']['m'].replace("_m", "_b");
+            for(var i = 0; i < photos.length && i < images.length; i++){
+                var w = images[i].width;
+                var h = images[i].height;
+
+                var farm_id = photos[i]['farm'],
+                    server_id = photos[i]['server'],
+                    id = photos[i]["id"],
+                    secret = photos[i]["secret"];
+
+                var link = "https://farm"+
+                    farm_id+".staticflickr.com/"+
+                    server_id+"/"+
+                    id+"_"+
+                    secret+".jpg";
+
+                images[i].src = link;
+                images[i].width = "" + w;
+                images[i].height = "" + h;
             }
         }
     };
