@@ -60,16 +60,20 @@
             //var images = [].slice.call( node.getElementsByTagName("img") );
             for(var i = 0; i < images.length; i++){
                 if(images[i].className.indexOf("hello-kitty-extension") == -1){
-                    var link = _imageLoader.randomLink();
-                    if (link) {
-                        var w = images[i].width;
-                        var h = images[i].height;
-
-                        images[i].src = link;
-                        images[i].width = "" + w;
-                        images[i].height = "" + h;
-                        images[i].className += " hello-kitty-extension";
+                    var w = images[i].width;
+                    var h = images[i].height;
+                    //TODO: возможно есть ошибка
+                    // проверка размера и пропорций
+                    if(w > 100 && h > 100 && w/h <= 2 && h/w <= 2){
+                        var link = _imageLoader.randomLink();
+                        if (link) {
+                            images[i].src = link;
+                            images[i].width = "" + w;
+                            images[i].height = "" + h;
+                            images[i].className += " hello-kitty-extension";
+                        }
                     }
+
                 }
 
             }
@@ -106,6 +110,55 @@
         });
     });
 
+
+    function Dictionary() {
+
+    }
+
+    Dictionary.prototype.load = function(){
+        var self = this;
+
+        var xmlhttp = new XMLHttpRequest();
+        var url = chrome.extension.getURL('web_access/words.json');
+
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var words = JSON.parse(this.responseText);
+                self.replaceOnPage(words);
+            }
+        };
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
+    };
+
+    Dictionary.prototype.replaceOnPage = function(words){
+        var textNodes = [];
+        var all = document.body.getElementsByTagName("*");
+        for (var i=0, max=all.length; i < max; i++) {
+            if(all[i]){
+                if(all[i].innerHTML != ""){
+                    var reg = "";
+                    words.change_words.forEach(function(word){
+                        reg += word.base + "|";
+                    });
+                    reg.substring(0, reg.length - 1);
+
+                    var test = new RegExp(reg);
+
+                    if(test.test(all[i].innerHTML)){
+                        console.log(all[i]);
+                        
+                    }
+                    //all[i].innerHTML = all[i].innerHTML.replace("Новости", "<span style='background: #ffb7b7'>Котики</span>");
+                }
+            }
+
+        }
+    };
+
+
+    var dict = new Dictionary();
+    dict.load();
 
     // var script = document.createElement("script");
     // script.type = "text/javascript";
