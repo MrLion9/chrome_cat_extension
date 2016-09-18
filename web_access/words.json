@@ -1,81 +1,11 @@
 {
-  "control word":{
-    "only": {
-      "base": "котик",
-      "nominative": "",
-      "genitive": "а",
-      "dative": "у",
-      "accusative": "а",
-      "instrumental": "ом",
-      "prepositional": "е"
-    },
-    "multiple": {
-      "base": "котик",
-      "nominative": "и",
-      "genitive": "ов",
-      "dative": "ам",
-      "accusative": "ов",
-      "instrumental": "ами",
-      "prepositional": "ах"
-    }
-  },
-  "change_words":[
-    {
-      "base": "новост",
-      "only": {
-        "nominative": "ь",
-        "genitive": "и",
-        "dative": "и",
-        "accusative": "ь",
-        "instrumental": "ью",
-        "prepositional": "и"
-      },
-      "multiple": {
-        "nominative": "и",
-        "genitive": "ей",
-        "dative": "ям",
-        "accusative": "и",
-        "instrumental": "ями",
-        "prepositional": "ях"
-      }
-    },
-    {
-      "base": "комментар",
-      "only": {
-        "nominative": "ий",
-        "genitive": "ия",
-        "dative": "ию",
-        "accusative": "ий",
-        "instrumental": "ием",
-        "prepositional": "ии"
-      },
-      "multiple": {
-        "nominative": "ии",
-        "genitive": "иев",
-        "dative": "иям",
-        "accusative": "ии",
-        "instrumental": "иями",
-        "prepositional": "иях"
-      }
-    },
-    {
-      "base": "информац",
-      "only": {
-        "nominative": "ия",
-        "genitive": "ии",
-        "dative": "ии",
-        "accusative": "ия",
-        "instrumental": "ией",
-        "prepositional": "ии"
-      },
-      "multiple": {
-        "nominative": "",
-        "genitive": "",
-        "dative": "",
-        "accusative": "",
-        "instrumental": "",
-        "prepositional": ""
-      }
-    }
+  "0":[
+    ["новость|Новость|информация|Информация|комментарий|Комментарий", "Kотик"],
+    ["новости|Новости|комментарии|Комментарии", "котики"],
+    ["информации|Информации|комментария|Комментария", "Kотика"],
+    ["новостям|Новостям|информации|Информации|комментарию|Комментарию", "Kотику"],
+    ["новостью|Новостью|комментарием|Комментарием", "Kотиком"],
+    ["новостями|Новостями|информацией|Информацией|комментариями|Комментариями", "Kотиками"],
+    ["о новостях|О новостях|о информации|О информации|о комментариях|О комментариях", "О котиках"]
   ]
 }

@@ -53,31 +53,31 @@
             photo['secret'] + ".jpg";
     }
 
-    function setImage(){
-        var images = document.getElementsByTagName("img");
+    function setImage(image){
+        // var images = document.getElementsByTagName("img");
 
-        if(images.length != 0){
-            //var images = [].slice.call( node.getElementsByTagName("img") );
-            for(var i = 0; i < images.length; i++){
-                if(images[i].className.indexOf("hello-kitty-extension") == -1){
-                    var w = images[i].width;
-                    var h = images[i].height;
+        // if(images.length != 0){
+        //     //var images = [].slice.call( node.getElementsByTagName("img") );
+        //     for(var i = 0; i < images.length; i++){
+                if(image.className.indexOf("hello-kitty-extension") == -1){
+                    var w = image.width;
+                    var h = image.height;
                     //TODO: возможно есть ошибка
                     // проверка размера и пропорций
                     if(w > 100 && h > 100 && w/h <= 2 && h/w <= 2){
                         var link = _imageLoader.randomLink();
                         if (link) {
-                            images[i].src = link;
-                            images[i].width = "" + w;
-                            images[i].height = "" + h;
-                            images[i].className += " hello-kitty-extension";
+                            image.src = link;
+                            image.width = "" + w;
+                            image.height = "" + h;
+                            image.className += " hello-kitty-extension";
                         }
                     }
 
                 }
 
-            }
-        }
+        //     }
+        // }
     }
 
     var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
@@ -86,7 +86,7 @@
         mutations.forEach(function(mutation){
             if(mutation.addedNodes.length != 0){
                 mutation.addedNodes.forEach(function(node){
-                    setImage();
+                    //setImage();
                 });
             }
         });
@@ -102,7 +102,10 @@
             _imageLoader.links.push({link: collectLink(photo), active: false});
         });
 
-        setImage();
+        //setImage();
+
+        var dict = new Dictionary();
+        dict.load();
 
         observer.observe(document.body, {
             subtree: true,
@@ -133,32 +136,71 @@
 
     Dictionary.prototype.replaceOnPage = function(words){
         var textNodes = [];
-        var all = document.body.getElementsByTagName("*");
-        for (var i=0, max=all.length; i < max; i++) {
-            if(all[i]){
-                if(all[i].innerHTML != ""){
-                    var reg = "";
-                    words.change_words.forEach(function(word){
-                        reg += word.base + "|";
-                    });
-                    reg.substring(0, reg.length - 1);
+        //var all = document.body.getElementsByTagName( "*" );
 
-                    var test = new RegExp(reg);
+        var tags = ["div", "span", "p", "li", "input", "h1", "h2", "img"];
 
-                    if(test.test(all[i].innerHTML)){
-                        console.log(all[i]);
-                        
+        tags.forEach(function(tag){
+            var all = document.body.getElementsByTagName(tag);
+            for (var i=0, max=all.length; i < max; i++) {
+                if(all[i]){
+                    if(all[i].tagName == "IMG"){
+                        setImage(all[i]);
                     }
-                    //all[i].innerHTML = all[i].innerHTML.replace("Новости", "<span style='background: #ffb7b7'>Котики</span>");
+                    if(all[i].innerHTML != ""){
+                        // var reg = "";
+                        // words.change_words.forEach(function(word){
+                        //     reg += word.base + "|";
+                        // });
+                        // reg.substring(0, reg.length - 1);
+                        //
+                        // var test = new RegExp(reg);
+                        //
+                        // if(test.test(all[i].innerHTML)){
+                            //console.log(all[i]);
+                            words[0].forEach(function(pair){
+                                all[i].innerHTML = all[i].innerHTML.replace(
+                                    new RegExp(pair[0]),
+                                    "<span style='background: #ffb7b7'>"+pair[1]+"</span>");
+                            });
+                        // }
+                        //all[i].innerHTML = all[i].innerHTML.replace("Новости", "<span style='background: #ffb7b7'>Котики</span>");
+                    }
                 }
+
             }
+        });
 
-        }
+        // for (var i=0, max=all.length; i < max; i++) {
+        //     if(all[i]){
+        //         if(all[i].tagName == "IMG"){
+        //             setImage(all[i]);
+        //         }
+        //         if(all[i].innerHTML != ""){
+        //             var reg = "";
+        //             words.change_words.forEach(function(word){
+        //                 reg += word.base + "|";
+        //             });
+        //             reg.substring(0, reg.length - 1);
+        //
+        //             var test = new RegExp(reg);
+        //
+        //             if(test.test(all[i].innerHTML)){
+        //                 //console.log(all[i]);
+        //                 words.change_words.forEach(function(word){
+        //                     for(key in word.only){
+        //                         all[i].innerHTML = all[i].innerHTML.replace(
+        //                             word.base + word.only[key],
+        //                             "<span style='background: #ffb7b7'>"+words.control_word.only.base+words.control_word.only[key]+"</span>");
+        //                     }
+        //                 });
+        //             }
+        //             //all[i].innerHTML = all[i].innerHTML.replace("Новости", "<span style='background: #ffb7b7'>Котики</span>");
+        //         }
+        //     }
+        //
+        // }
     };
-
-
-    var dict = new Dictionary();
-    dict.load();
 
     // var script = document.createElement("script");
     // script.type = "text/javascript";
