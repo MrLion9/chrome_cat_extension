@@ -1,7 +1,8 @@
 
-    var tag = "cats";
-    var key = "ba49d98b5aefb7a284efcf1e9001466f";
-    var token = "72157670705224674-b512ed677339242e";
+
+    // var tag = "cats";
+    // var key = "ba49d98b5aefb7a284efcf1e9001466f";
+    // var token = "72157670705224674-b512ed677339242e";
 
     // var url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key="+
     //     key+"&tags="+tag+"&format=json&nojsoncallback=1&auth_token="+
@@ -9,9 +10,9 @@
 
     //var url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=ba49d98b5aefb7a284efcf1e9001466f&tags=cats&safe_search=&is_getty=&format=json&nojsoncallback=1&auth_token=72157670705224674-b512ed677339242e&api_sig=d5d0a55b9404f86d79a46037f29f7bfc";
 
-    var images = document.getElementsByTagName('img');
-    var next_page = 1;
 
+
+    /***/
     function imageLoader(){
         this.links = [];
     }
@@ -45,6 +46,58 @@
         return this.links[Math.floor(Math.random() * (this.links.length-1) )].link;
     };
 
+
+    var words;
+    /***/
+    function Dictionary() {}
+
+    Dictionary.prototype.load = function(){
+        var self = this;
+
+        var xmlhttp = new XMLHttpRequest();
+        var url = chrome.extension.getURL('web_access/words.json');
+
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                words = JSON.parse(this.responseText);
+                self.replaceOnPage(document.body);
+
+                setImage();
+            }
+        };
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
+    };
+
+    Dictionary.prototype.replaceOnPage = function(node){
+        var textNodes = [];
+        //var all = document.body.getElementsByTagName( "*" );
+
+        var tags = ["div", "span", "p", "li", "h1", "h2", "h3"];
+
+        tags.forEach(function(tag){
+            if(typeof node.getElementsByTagName == "function"){
+                var all = node.getElementsByTagName(tag);
+                for (var i=0, max=all.length; i < max; i++) {
+                    if(all[i]){
+                        if(all[i].innerHTML != ""){
+                            words[0].forEach(function(pair){
+                                all[i].innerHTML = all[i].innerHTML.replace(
+                                    new RegExp(pair[0]),
+                                    "<span style='background: #ffb7b7'>"+pair[1]+"</span>");
+                            });
+                        }
+                    }
+
+                }
+            }
+
+        });
+    };
+
+    var dict = new Dictionary();
+    var _imageLoader = new imageLoader();
+
     function collectLink(photo){
         return "https://farm" +
             photo['farm'] + ".staticflickr.com/" +
@@ -54,30 +107,29 @@
     }
 
     function setImage(image){
-        // var images = document.getElementsByTagName("img");
+        var images = document.getElementsByTagName("img");
 
-        // if(images.length != 0){
-        //     //var images = [].slice.call( node.getElementsByTagName("img") );
-        //     for(var i = 0; i < images.length; i++){
-                if(image.className.indexOf("hello-kitty-extension") == -1){
-                    var w = image.width;
-                    var h = image.height;
+        if(images.length != 0) {
+            //var images = [].slice.call( node.getElementsByTagName("img") );
+            for (var i = 0; i < images.length; i++) {
+                if (images[i].className.indexOf("hello-kitty-extension") == -1) {
+                    var w = images[i].width;
+                    var h = images[i].height;
                     //TODO: возможно есть ошибка
                     // проверка размера и пропорций
                     if(w > 100 && h > 100 && w/h <= 2 && h/w <= 2){
                         var link = _imageLoader.randomLink();
                         if (link) {
-                            image.src = link;
-                            image.width = "" + w;
-                            image.height = "" + h;
-                            image.className += " hello-kitty-extension";
+                            images[i].src = link;
+                            images[i].width = "" + w;
+                            images[i].height = "" + h;
+                            images[i].className += " hello-kitty-extension";
                         }
                     }
 
                 }
-
-        //     }
-        // }
+            }
+        }
     }
 
     var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
@@ -86,13 +138,14 @@
         mutations.forEach(function(mutation){
             if(mutation.addedNodes.length != 0){
                 mutation.addedNodes.forEach(function(node){
-                    //setImage();
+                    setImage();
+
+                    // dict.replaceOnPage(node);
                 });
             }
         });
     });
 
-    var _imageLoader = new imageLoader();
     _imageLoader.load(1, function(data){
         var photos = data.photos.photo.sort(function(){
             return [-1,1,0][Math.floor(Math.random() * 2)];
@@ -104,7 +157,6 @@
 
         //setImage();
 
-        var dict = new Dictionary();
         dict.load();
 
         observer.observe(document.body, {
@@ -113,137 +165,4 @@
         });
     });
 
-
-    function Dictionary() {
-
-    }
-
-    Dictionary.prototype.load = function(){
-        var self = this;
-
-        var xmlhttp = new XMLHttpRequest();
-        var url = chrome.extension.getURL('web_access/words.json');
-
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                var words = JSON.parse(this.responseText);
-                self.replaceOnPage(words);
-            }
-        };
-        xmlhttp.open("GET", url, true);
-        xmlhttp.send();
-    };
-
-    Dictionary.prototype.replaceOnPage = function(words){
-        var textNodes = [];
-        //var all = document.body.getElementsByTagName( "*" );
-
-        var tags = ["div", "span", "p", "li", "input", "h1", "h2", "img"];
-
-        tags.forEach(function(tag){
-            var all = document.body.getElementsByTagName(tag);
-            for (var i=0, max=all.length; i < max; i++) {
-                if(all[i]){
-                    if(all[i].tagName == "IMG"){
-                        setImage(all[i]);
-                    }
-                    if(all[i].innerHTML != ""){
-                        // var reg = "";
-                        // words.change_words.forEach(function(word){
-                        //     reg += word.base + "|";
-                        // });
-                        // reg.substring(0, reg.length - 1);
-                        //
-                        // var test = new RegExp(reg);
-                        //
-                        // if(test.test(all[i].innerHTML)){
-                            //console.log(all[i]);
-                            words[0].forEach(function(pair){
-                                all[i].innerHTML = all[i].innerHTML.replace(
-                                    new RegExp(pair[0]),
-                                    "<span style='background: #ffb7b7'>"+pair[1]+"</span>");
-                            });
-                        // }
-                        //all[i].innerHTML = all[i].innerHTML.replace("Новости", "<span style='background: #ffb7b7'>Котики</span>");
-                    }
-                }
-
-            }
-        });
-
-        // for (var i=0, max=all.length; i < max; i++) {
-        //     if(all[i]){
-        //         if(all[i].tagName == "IMG"){
-        //             setImage(all[i]);
-        //         }
-        //         if(all[i].innerHTML != ""){
-        //             var reg = "";
-        //             words.change_words.forEach(function(word){
-        //                 reg += word.base + "|";
-        //             });
-        //             reg.substring(0, reg.length - 1);
-        //
-        //             var test = new RegExp(reg);
-        //
-        //             if(test.test(all[i].innerHTML)){
-        //                 //console.log(all[i]);
-        //                 words.change_words.forEach(function(word){
-        //                     for(key in word.only){
-        //                         all[i].innerHTML = all[i].innerHTML.replace(
-        //                             word.base + word.only[key],
-        //                             "<span style='background: #ffb7b7'>"+words.control_word.only.base+words.control_word.only[key]+"</span>");
-        //                     }
-        //                 });
-        //             }
-        //             //all[i].innerHTML = all[i].innerHTML.replace("Новости", "<span style='background: #ffb7b7'>Котики</span>");
-        //         }
-        //     }
-        //
-        // }
-    };
-
-    // var script = document.createElement("script");
-    // script.type = "text/javascript";
-    // script.src = "https://www.google.com/jsapi";
-    //
-    // document.getElementsByTagName("head")[0].appendChild(script);
-    //
-    // script.onreadystatechange = function(){
-    //     if (this.readyState == "complete") {
-    //         start();
-    //     }
-    // };
-    //
-    //
-    //
-    // function start(){
-    //     console.log("test");
-    //     var images = document.getElementsByTagName('img');
-    //
-    //     google.load('search', '1');
-    //     google.setOnLoadCallback(OnLoad);
-    //     var search;
-    //     var keyword = 'cat';
-    //
-    //     function OnLoad()
-    //     {
-    //         search = new google.search.ImageSearch();
-    //
-    //         search.setSearchCompleteCallback(this, searchComplete, null);
-    //
-    //         search.execute(keyword);
-    //     }
-    //
-    //     function searchComplete()
-    //     {
-    //         console.log("search complete");
-    //         if (search.results && search.results.length > 0)
-    //         {
-    //             var rnd = Math.floor(Math.random() * search.results.length);
-    //
-    //             //you will probably use jQuery and something like: $('body').css('background-image', "url('" + search.results[rnd]['url'] + "')");
-    //             images[0].src = search.results[rnd]['url'];
-    //         }
-    //     }
-    // }
 
