@@ -10,14 +10,14 @@
     //var url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=ba49d98b5aefb7a284efcf1e9001466f&tags=cats&safe_search=&is_getty=&format=json&nojsoncallback=1&auth_token=72157670705224674-b512ed677339242e&api_sig=d5d0a55b9404f86d79a46037f29f7bfc";
 
     var images = document.getElementsByTagName('img');
-    //var links = [];
+    var next_page = 1;
 
     function imageLoader(){
         this.links = [];
     }
 
     imageLoader.prototype.load = function(page, callback){
-        var url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=ba49d98b5aefb7a284efcf1e9001466f&tags=cats&safe_search=&is_getty=&page="+
+        var url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=ba49d98b5aefb7a284efcf1e9001466f&text=cats&tags=cats&safe_search=&is_getty=&page="+
             page+"&format=json&nojsoncallback=1";
 
         var xhr = new XMLHttpRequest();
@@ -41,6 +41,10 @@
         return false;
     };
 
+    imageLoader.prototype.randomLink = function(){
+        return this.links[Math.floor(Math.random() * (this.links.length-1) )].link;
+    };
+
     function collectLink(photo){
         return "https://farm" +
             photo['farm'] + ".staticflickr.com/" +
@@ -49,70 +53,28 @@
             photo['secret'] + ".jpg";
     }
 
-    var _imageLoader = new imageLoader();
-    _imageLoader.load(1, function(data){
-        var photos = data.photos.photo.sort(function(){
-            return [-1,1,0][Math.floor(Math.random() * 2)];
-        });
+    function setImage(){
+        var images = document.getElementsByTagName("img");
 
-        for(var i = 0; i < photos.length && i < images.length; i++) {
-            var w = images[i].width;
-            var h = images[i].height;
+        if(images.length != 0){
+            //var images = [].slice.call( node.getElementsByTagName("img") );
+            for(var i = 0; i < images.length; i++){
+                if(images[i].className.indexOf("hello-kitty-extension") == -1){
+                    var link = _imageLoader.randomLink();
+                    if (link) {
+                        var w = images[i].width;
+                        var h = images[i].height;
 
-            var farm_id = photos[i]['farm'],
-                server_id = photos[i]['server'],
-                id = photos[i]["id"],
-                secret = photos[i]["secret"];
+                        images[i].src = link;
+                        images[i].width = "" + w;
+                        images[i].height = "" + h;
+                        images[i].className += " hello-kitty-extension";
+                    }
+                }
 
-            var link = collectLink(photos[i]);
-
-            _imageLoader.links.push({link: link, active: true});
-            delete photos[i];
-
-            images[i].src = link;
-            images[i].width = "" + w;
-            images[i].height = "" + h;
+            }
         }
-
-        photos.forEach(function(photo){
-            _imageLoader.links.push({link: collectLink(photo), active: false});
-        });
-    });
-
-    // var xhr = new XMLHttpRequest();
-    // xhr.open("GET", url, true);
-    // xhr.onreadystatechange = function() {
-    //     if (xhr.readyState == 4)
-    //     {
-    //
-    //         var data = JSON.parse(this.responseText);
-    //         var photos = data.photos.photo.sort(function(){
-    //             return [-1,1,0][Math.floor(Math.random() * 2)];
-    //         });
-    //
-    //         for(var i = 0; i < photos.length && i < images.length; i++){
-    //             var w = images[i].width;
-    //             var h = images[i].height;
-    //
-    //             var farm_id = photos[i]['farm'],
-    //                 server_id = photos[i]['server'],
-    //                 id = photos[i]["id"],
-    //                 secret = photos[i]["secret"];
-    //
-    //             var link = "https://farm"+
-    //                 farm_id+".staticflickr.com/"+
-    //                 server_id+"/"+
-    //                 id+"_"+
-    //                 secret+".jpg";
-    //
-    //             images[i].src = link;
-    //             images[i].width = "" + w;
-    //             images[i].height = "" + h;
-    //         }
-    //     }
-    // };
-    // xhr.send();
-
+    }
 
     var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
 
@@ -120,26 +82,28 @@
         mutations.forEach(function(mutation){
             if(mutation.addedNodes.length != 0){
                 mutation.addedNodes.forEach(function(node){
-                    var images = [].slice.call( node.getElementsByTagName("img") );
-
-                    if(images.length != 0) {
-                        for(var i = 0; i < images.length; i++){
-                            var link = _imageLoader.notActiveLink();
-                            if (link) {
-                                images[i].src = link;
-                            } else {
-                                //load more
-                            }
-                        }
-                    }
+                    setImage();
                 });
             }
         });
     });
 
-    observer.observe(document.body, {
-        subtree: true,
-        childList: true
+    var _imageLoader = new imageLoader();
+    _imageLoader.load(1, function(data){
+        var photos = data.photos.photo.sort(function(){
+            return [-1,1,0][Math.floor(Math.random() * 2)];
+        });
+
+        photos.forEach(function(photo){
+            _imageLoader.links.push({link: collectLink(photo), active: false});
+        });
+
+        setImage();
+
+        observer.observe(document.body, {
+            subtree: true,
+            childList: true
+        });
     });
 
 
