@@ -18,7 +18,7 @@
     }
 
     imageLoader.prototype.load = function(page, callback){
-        var url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=ba49d98b5aefb7a284efcf1e9001466f&text=cats&tags=cats&safe_search=&is_getty=&page="+
+        var url = " https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=416abd87fe9f411f0edb7fdcb6ced379&text=cats&safe_search=&is_getty=&page="+
             page+"&format=json&nojsoncallback=1";
 
         var xhr = new XMLHttpRequest();
@@ -70,29 +70,18 @@
     };
 
     Dictionary.prototype.replaceOnPage = function(node){
-        var textNodes = [];
-        //var all = document.body.getElementsByTagName( "*" );
-
-        var tags = ["div", "span", "p", "li", "h1", "h2", "h3"];
-
-        tags.forEach(function(tag){
-            if(typeof node.getElementsByTagName == "function"){
-                var all = node.getElementsByTagName(tag);
-                for (var i=0, max=all.length; i < max; i++) {
-                    if(all[i]){
-                        if(all[i].innerHTML != ""){
-                            words[0].forEach(function(pair){
-                                all[i].innerHTML = all[i].innerHTML.replace(
-                                    new RegExp(pair[0]),
-                                    "<span style='background: #ffb7b7'>"+pair[1]+"</span>");
-                            });
-                        }
-                    }
-
-                }
-            }
-
+        var pairs = words[0].map(function(pair){
+            return [ new RegExp(pair[0], 'ig'), pair[1] ];
         });
+
+        var doc = node.innerHTML;
+
+        pairs.forEach(function(pair){
+            doc = doc.replace(pair[0], "<span style='background: #ffb7b7'>"+pair[1]+"</span>");
+        });
+
+        document.body.innerHTML = doc;
+
     };
 
     var dict = new Dictionary();
