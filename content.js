@@ -18,8 +18,7 @@
     }
 
     imageLoader.prototype.load = function(page, callback){
-        var url = " https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=416abd87fe9f411f0edb7fdcb6ced379&text=cats&safe_search=&is_getty=&page="+
-            page+"&format=json&nojsoncallback=1";
+        var url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=c630e1c9b6e630fcccb3604125a4f319&tags=cat%2Ccats%2Ckitten%2Cbritish+cat&text=cats&sort=relevance&format=json&nojsoncallback=1";
 
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
@@ -60,29 +59,37 @@
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 words = JSON.parse(this.responseText);
-                self.replaceOnPage(document.body);
 
-                setImage();
+                var reg = Object.keys(words).join("|");
+                reg = new RegExp( "(" + reg + ")", "ig" );
+
+                replaceText(reg, document.body);
+
+                setImage(document.body);
             }
         };
         xmlhttp.open("GET", url, true);
         xmlhttp.send();
     };
 
-    Dictionary.prototype.replaceOnPage = function(node){
-        var pairs = words[0].map(function(pair){
-            return [ new RegExp(pair[0], 'ig'), pair[1] ];
-        });
+    function replacer (match){
+        return words[match];
+    }
 
-        var doc = node.innerHTML;
-
-        pairs.forEach(function(pair){
-            doc = doc.replace(pair[0], "<span style='background: #ffb7b7'>"+pair[1]+"</span>");
-        });
-
-        document.body.innerHTML = doc;
-
-    };
+    // Dictionary.prototype.replaceOnPage = function(node){
+    //     var pairs = words[0].map(function(pair){
+    //         return [ new RegExp(pair[0], 'ig'), pair[1] ];
+    //     });
+    //
+    //     var doc = node.innerHTML;
+    //
+    //     pairs.forEach(function(pair){
+    //         doc = doc.replace(pair[0], "<span style='background: #ffb7b7'>"+pair[1]+"</span>");
+    //     });
+    //
+    //     document.body.innerHTML = doc;
+    //
+    // };
 
     var dict = new Dictionary();
     var _imageLoader = new imageLoader();
@@ -95,8 +102,11 @@
             photo['secret'] + ".jpg";
     }
 
-    function setImage(image){
-        var images = document.getElementsByTagName("img");
+    function setImage(node){
+
+        if(typeof node.getElementsByTagName == "undefined") return;
+
+        var images = node.getElementsByTagName("img");
 
         if(images.length != 0) {
             //var images = [].slice.call( node.getElementsByTagName("img") );
@@ -121,14 +131,41 @@
         }
     }
 
+    function replaceText(reg, node){
+        node = node || document.body;
+
+        var childs = node.childNodes, i = 0;
+
+        while(node = childs[i]){
+            if (node.nodeType == 3){
+                if (node.textContent) {
+                    node.textContent = node.textContent.replace(reg, replacer);
+                } else { // support to IE
+                    node.nodeValue = node.nodeValue.replace(reg, replacer);
+                }
+            } else {
+                replaceText(reg, node);
+            }
+            i++;
+        }
+
+
+    }
+
     var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
 
     var observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation){
             if(mutation.addedNodes.length != 0){
-                mutation.addedNodes.forEach(function(node){
-                    setImage();
+                //console.log(mutation.addedNodes);
 
+                mutation.addedNodes.forEach(function(node){
+                    //console.log(node.textContent);
+                    setImage(node);
+                    // if(node.textContent != "") {
+                    //     var text = node.textContent;
+                    //     node.textContent = text.replace(/Новости/ig, "Котики");
+                    // }
                     // dict.replaceOnPage(node);
                 });
             }
