@@ -1,17 +1,4 @@
 
-
-    // var tag = "cats";
-    // var key = "ba49d98b5aefb7a284efcf1e9001466f";
-    // var token = "72157670705224674-b512ed677339242e";
-
-    // var url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key="+
-    //     key+"&tags="+tag+"&format=json&nojsoncallback=1&auth_token="+
-    //     token+"&api_sig=d5d0a55b9404f86d79a46037f29f7bfc";
-
-    //var url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=ba49d98b5aefb7a284efcf1e9001466f&tags=cats&safe_search=&is_getty=&format=json&nojsoncallback=1&auth_token=72157670705224674-b512ed677339242e&api_sig=d5d0a55b9404f86d79a46037f29f7bfc";
-
-
-
     /***/
     function imageLoader(){
         this.links = [];
@@ -47,6 +34,7 @@
 
 
     var words;
+    var reg;
     /***/
     function Dictionary() {}
 
@@ -60,7 +48,7 @@
             if (this.readyState == 4 && this.status == 200) {
                 words = JSON.parse(this.responseText);
 
-                var reg = Object.keys(words).join("|");
+                reg = Object.keys(words).join("|");
                 reg = new RegExp( "(" + reg + ")", "ig" );
 
                 replaceText(reg, document.body);
@@ -75,21 +63,6 @@
     function replacer (match){
         return words[match];
     }
-
-    // Dictionary.prototype.replaceOnPage = function(node){
-    //     var pairs = words[0].map(function(pair){
-    //         return [ new RegExp(pair[0], 'ig'), pair[1] ];
-    //     });
-    //
-    //     var doc = node.innerHTML;
-    //
-    //     pairs.forEach(function(pair){
-    //         doc = doc.replace(pair[0], "<span style='background: #ffb7b7'>"+pair[1]+"</span>");
-    //     });
-    //
-    //     document.body.innerHTML = doc;
-    //
-    // };
 
     var dict = new Dictionary();
     var _imageLoader = new imageLoader();
@@ -160,13 +133,8 @@
                 //console.log(mutation.addedNodes);
 
                 mutation.addedNodes.forEach(function(node){
-                    //console.log(node.textContent);
                     setImage(node);
-                    // if(node.textContent != "") {
-                    //     var text = node.textContent;
-                    //     node.textContent = text.replace(/Новости/ig, "Котики");
-                    // }
-                    // dict.replaceOnPage(node);
+                    replaceText(reg, node);
                 });
             }
         });
