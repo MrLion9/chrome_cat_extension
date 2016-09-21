@@ -194,27 +194,3 @@
 
 
 
-
-    // var jqueryScript = document.createElement('script');
-    // jqueryScript.src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js";
-    // document.head.appendChild(jqueryScript);
-    //
-    // jqueryScript.onload = function(){
-    //
-    //     var semantic = document.createElement('script');
-    //     semantic.src = "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.4/semantic.min.js";
-    //     document.head.appendChild(semantic);
-    //
-    //     var div = document.createElement('div');
-    //     div.className = "ui modal";
-    //     div.innerHTML = "<i class='close icon'></i>"+
-    //         "<div class='header'>Modal Title</div>"+
-    //         "<div class='description'>descjhfdksl</div>"+
-    //         "<div class='actions'>"+
-    //         "<div class='ui button'>Cancel</div>"+
-    //         "<div class='ui button'>OK</div>"+
-    //         "</div>";
-    //     document.body.appendChild(div);
-    // };
-
-
