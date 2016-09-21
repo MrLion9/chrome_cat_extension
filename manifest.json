@@ -20,6 +20,6 @@
   },
   "web_accessible_resources": ["web_access/*"],
   "permissions": [
-    "<all_urls>"
+    "<all_urls>", "webNavigation"
   ]
 }

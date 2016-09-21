@@ -2,6 +2,9 @@
    function HelloKitty()
    {
        this.links = [];
+       this.imgStat = [];
+       this.textStat = 0;
+
        this.words = null;
        this.reg = null;
        this.observer = null;
@@ -29,23 +32,24 @@
    };
 
    HelloKitty.prototype.loadDict = function(){
-       var self = this;
+       var that = this;
 
        var xmlhttp = new XMLHttpRequest();
        var url = chrome.extension.getURL('web_access/words.json');
 
        xmlhttp.onreadystatechange = function() {
            if (this.readyState == 4 && this.status == 200) {
-               self.words = JSON.parse(this.responseText);
+               that.words = JSON.parse(this.responseText);
 
-               self.reg = Object.keys(self.words).join("|");
-               self.reg = new RegExp( "(" + self.reg + ")", "ig" );
+               that.reg = Object.keys(that.words).join("|");
+               that.reg = new RegExp( "(" + that.reg + ")", "ig" );
 
-               self.replaceText(document.body);
+               that.replaceText(document.body);
+               //that.connectWithPopup({type: 'text', data: that.textStat});
 
-               self.setImage(document.body);
+               that.setImage(document.body);
 
-               self.startObserve();
+               that.startObserve();
            }
        };
        xmlhttp.open("GET", url, true);
@@ -78,7 +82,7 @@
    };
 
    HelloKitty.prototype.createObserver = function(){
-       var self = this;
+       var that = this;
        var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
 
        this.observer = new MutationObserver(function(mutations) {
@@ -87,8 +91,10 @@
                    //console.log(mutation.addedNodes);
 
                    mutation.addedNodes.forEach(function(node){
-                       self.setImage(node);
-                       self.replaceText(node);
+                       that.setImage(node);
+                       that.replaceText(node);
+
+                       //that.connectWithPopup({type: 'text', data: that.textStat})
                    });
                }
            });
@@ -118,6 +124,8 @@
                    if(w > 100 && h > 100 && w/h <= 2 && h/w <= 2){
                        var link = this.randomLink();
                        if (link) {
+                           this.imgStat.push({value: images[i].src, changedBy: link});
+
                            images[i].src = link;
                            images[i].width = "" + w;
                            images[i].height = "" + h;
@@ -128,6 +136,8 @@
                }
            }
        }
+
+       this.connectWithPopup({type: 'img', data: this.imgStat});
    };
 
    HelloKitty.prototype.replaceText = function(node){
@@ -139,9 +149,17 @@
        while(node = childs[i]){
            if (node.nodeType == 3){
                if (node.textContent) {
-                   node.textContent = node.textContent.replace(this.reg, function(match){return that.words[match];});
+                   node.textContent =
+                       node.textContent.replace(this.reg, function(match){
+                           that.textStat++;
+                           return that.words[match];
+                       });
                } else { // support to IE
-                   node.nodeValue = node.nodeValue.replace(this.reg, function(match){return that.words[match];});
+                   node.nodeValue =
+                       node.nodeValue.replace(this.reg, function(match){
+                           that.textStat++;
+                           return that.words[match];
+                       });
                }
            } else {
                this.replaceText(node);
