@@ -1,6 +1,6 @@
 # chrome_cat_extension
 
-This extension for Chrome changes all images in page by cats from flickr :)  
+This extension for Chrome changes all images on page by cats from flickr :)  
 For example, we searching in Instagram #dogs without extension ...   
   
 ![cat extension](https://github.com/MrLion9/chrome_cat_extension/raw/master/web_access/cat-extension1.png)  
